@@ -1,0 +1,6 @@
+.swagger-ui .model-box-control,
+.swagger-ui .model-box-control:focus,
+.swagger-ui .models-control:focus,
+.swagger-ui .opblock-summary-control:focus {
+  outline: none;
+}

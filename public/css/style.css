@@ -1,0 +1,83 @@
+body {
+  padding: 10px;
+  /*background: url(/assets/background.svg) no-repeat center center fixed;*/
+  /*background: linear-gradient(to bottom right, #00bfff, #012549) no-repeat*/
+  background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364)
+    no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+@font-face {
+  font-family: Varino;
+  src: url(/assets/fonts/varino-normal.ttf);
+}
+
+h1,
+h3 {
+  text-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 30px #00bfff;
+  color: #00bfff;
+  -webkit-text-stroke-color: #012549;
+  text-align: center;
+  font-family: 'Varino', sans-serif;
+  paint-order: stroke fill;
+}
+
+h1 {
+  font-size: 65px;
+  letter-spacing: 0.7rem;
+  -webkit-text-stroke-width: 3px;
+  margin-bottom: 70px;
+}
+
+h3 {
+  font-size: 35px;
+  letter-spacing: 0.3rem;
+  -webkit-text-stroke-width: 1.5px;
+}
+
+h3 a {
+  text-shadow: 0 0 10px #cd03ff, 0 0 20px #cd03ff, 0 0 30px #cd03ff;
+  color: #cd03ff;
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: black;
+  text-decoration: none;
+}
+
+@-moz-document url-prefix() {
+  h3,
+  h3 a {
+    -webkit-text-stroke-width: 3.5px;
+  }
+}
+
+h3 a:hover {
+  text-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 30px #00bfff;
+  color: #00bfff;
+  -webkit-text-stroke-color: #012549;
+}
+
+@media screen and (max-width: 650px) {
+  h1 {
+    margin-top: 50px;
+    font-size: 40px;
+    letter-spacing: 0.6rem;
+    -webkit-text-stroke-width: 2px;
+  }
+
+  @-moz-document url-prefix() {
+    h1 {
+      -webkit-text-stroke-width: 4px;
+    }
+  }
+
+  h3,
+  h3 a {
+    -webkit-text-stroke-width: 1px;
+    margin-top: 50px;
+    font-size: 20px;
+    letter-spacing: 0.2rem;
+  }
+}

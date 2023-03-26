@@ -1,0 +1,88 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { SeedDto } from './dto/seed.dto';
+import { ProductsService } from '../products/products.service';
+
+import { initialData, SeedProduct, SeedUser } from './data/seed-data';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../auth/entities/user.entity';
+import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
+
+@Injectable()
+export class SeedService {
+  private seedSecret: string;
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly configService: ConfigService,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {
+    this.seedSecret = configService.getOrThrow('SEED_SECRET');
+  }
+
+  async runSeed({ hard, secret }: SeedDto) {
+    if (secret !== this.seedSecret)
+      throw new BadRequestException('First talk to the admin');
+
+    const seedProducts = initialData.products;
+    const seedUsers = initialData.users;
+
+    await this.deleteTables(hard, seedProducts, seedUsers);
+    const userInsertProducts = await this.insertUsers(seedUsers);
+    const products = await this.insertNewProducts(
+      userInsertProducts,
+      seedProducts,
+    );
+
+    return {
+      message: hard ? 'HARD SEED EXECUTED' : 'SEED EXECUTED',
+      products,
+    };
+  }
+
+  private async insertUsers(seedUsers: SeedUser[]) {
+    const users: User[] = [];
+
+    seedUsers.forEach(({ password, ...user }) => {
+      users.push(
+        this.userRepository.create({
+          ...user,
+          password: bcrypt.hashSync(password, 10),
+        }),
+      );
+    });
+
+    const result = await this.userRepository.save(users);
+
+    return result[1];
+  }
+
+  private async deleteTables(
+    hard: boolean,
+    seedProducts: SeedProduct[],
+    seedUsers: SeedUser[],
+  ) {
+    await this.productsService.deleteAllProducts(hard, seedProducts);
+
+    const usersEmail = [];
+    seedUsers.forEach(({ email }) => usersEmail.push(email));
+
+    const queryBuilder = this.userRepository.createQueryBuilder();
+    await queryBuilder
+      .delete()
+      .where(hard ? {} : 'email In(:...email)', { email: usersEmail })
+      .execute();
+  }
+
+  private async insertNewProducts(user: User, seedProducts: SeedProduct[]) {
+    const insertPromises = [];
+
+    seedProducts.forEach((product) => {
+      insertPromises.push(this.productsService.create(product, user));
+    });
+
+    return await Promise.all(insertPromises);
+  }
+}
