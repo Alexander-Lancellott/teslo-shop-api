@@ -1,7 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MulterModuleOptions } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuid } from 'uuid';
+
+const configService = new ConfigService();
+
+const stage = configService.get<string>('STAGE');
 
 const fileType = '(jpg|jpeg|png|gif)';
 
@@ -34,7 +39,7 @@ const imageFilter = (
 export const imageOptions: MulterModuleOptions = {
   fileFilter: imageFilter,
   storage: diskStorage({
-    destination: './static/products',
+    destination: stage === 'prod' ? '/tmp/' : './static/products',
     filename: fileNamer,
   }),
 };
