@@ -81,6 +81,7 @@ export class ProductsService {
           slug: term.toLowerCase(),
         })
         .leftJoinAndSelect('prod.images', 'prodImages')
+        .leftJoinAndSelect('prod.user', 'prodUser')
         .getOne();
     }
 

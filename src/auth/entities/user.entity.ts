@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -9,28 +9,34 @@ import {
 } from 'typeorm';
 
 import { Product } from '../../products/entities';
+import { initialData } from '../../seed/data/seed-data';
 
 @Entity('users')
 export class User {
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ example: initialData.users[1].email })
   @Column('text', { unique: true })
   email: string;
 
+  @ApiHideProperty()
   @Column('text', { select: false })
   password: string;
 
+  @ApiProperty({ example: initialData.users[1].fullName })
   @Column('text')
   fullName: string;
 
   @Column('boolean', { default: true })
   isActive: boolean;
 
+  @ApiProperty({ example: initialData.users[1].roles })
   @Column('text', { array: true, default: ['user'] })
   roles: string[];
 
+  @ApiHideProperty()
   @OneToMany(() => Product, (product) => product.user)
   products: Product;
 

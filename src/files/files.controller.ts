@@ -15,6 +15,10 @@ import { Response } from 'express';
 
 import { FilesService } from './files.service';
 import { imageOptions } from './helpers/imageOptions';
+import {
+  ApiUploadImageResponse,
+  ApiGetImageResponse,
+} from './decorators/file-response.decorator';
 
 @ApiTags('Files')
 @Controller('files')
@@ -22,7 +26,8 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Get('product/:image')
-  findOne(
+  @ApiGetImageResponse()
+  getImage(
     @Res() res: Response,
     @Param('image')
     image: string,
@@ -33,6 +38,7 @@ export class FilesController {
 
   @Post('product')
   @UseInterceptors(FileInterceptor('file', imageOptions))
+  @ApiUploadImageResponse()
   async uploadProductImage(
     @UploadedFile(
       new ParseFilePipe() /*new ParseFilePipeBuilder().addFileTypeValidator({fileType: 'jpg|jpeg|png|gif',}).build(),*/,

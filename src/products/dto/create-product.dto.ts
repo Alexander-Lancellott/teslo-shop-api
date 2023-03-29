@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { OmitType, IntersectionType } from '@nestjs/swagger';
+import { Product, gender } from '../entities/product.entity';
 import {
   IsInt,
   IsString,
@@ -11,53 +12,55 @@ import {
   IsIn,
 } from 'class-validator';
 
-export class CreateProductDto {
-  @ApiProperty({ uniqueItems: true, minLength: 1 })
+class CreateProduct {
   @IsString()
   @MinLength(1)
   title: string;
 
-  @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
   @Min(0)
   @Type(() => Number)
   price?: number;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   slug?: string;
 
-  @ApiPropertyOptional()
   @IsInt()
   @IsOptional()
   @Type(() => Number)
   stock?: number;
 
-  @ApiProperty()
   @IsString({ each: true })
   @IsArray()
   sizes: string[];
 
-  @ApiProperty({ enum: ['men', 'women', 'kid', 'unisex'] })
-  @IsIn(['men', 'women', 'kid', 'unisex'])
+  @IsIn(gender)
   gender: string;
 
-  @ApiPropertyOptional()
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
   tags?: string[];
 
-  @ApiPropertyOptional()
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
   images?: string[];
 }
+
+export class CreateProductDto extends IntersectionType(
+  OmitType(Product, [
+    'id',
+    'user',
+    'creatAt',
+    'updateAt',
+    'checkSlugInsert',
+  ] as const),
+  CreateProduct,
+) {}

@@ -10,7 +10,7 @@ import {
   Headers,
   //SetMetadata,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -20,7 +20,12 @@ import { User } from './entities/user.entity';
 import { RawHeaders } from '../common/decorators/raw-headers.decorator';
 import { IncomingHttpHeaders } from 'http';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
-import { Auth, RoleProctected } from './decorators';
+import {
+  Auth,
+  RoleProctected,
+  ApiAuthResponse,
+  ApiCheckStatusResponse,
+} from './decorators';
 import { ValidRoles } from './interfaces';
 
 @ApiTags('Auth')
@@ -30,21 +35,27 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @ApiAuthResponse({})
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
   }
 
   @Get('login')
+  @ApiAuthResponse({ islogin: true })
   loginUser(@Query() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
 
   @Get('check-status')
   @Auth()
+  @ApiCheckStatusResponse()
   checkStatus(@GetUser() user: User) {
     return this.authService.checkStatus(user);
   }
 
+  //! The following endpoints are examples.
+
+  @ApiExcludeEndpoint()
   @Get('private')
   @UseGuards(AuthGuard())
   testingPrivateRoute(
@@ -56,6 +67,7 @@ export class AuthController {
     return { user, user2, rawHeaders, headers };
   }
 
+  @ApiExcludeEndpoint()
   @Get('private2')
   //@SetMetadata('roles', ['admin', 'super-user'])
   @RoleProctected(ValidRoles.superUser, ValidRoles.admin)
@@ -64,6 +76,7 @@ export class AuthController {
     return { user };
   }
 
+  @ApiExcludeEndpoint()
   @Get('private3')
   @Auth(ValidRoles.admin, ValidRoles.superUser)
   testingPrivateRoute3(@GetUser() user: User) {

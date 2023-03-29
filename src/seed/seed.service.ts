@@ -30,15 +30,11 @@ export class SeedService {
     const seedUsers = initialData.users;
 
     await this.deleteTables(hard, seedProducts, seedUsers);
-    const userInsertProducts = await this.insertUsers(seedUsers);
-    const products = await this.insertNewProducts(
-      userInsertProducts,
-      seedProducts,
-    );
+    const users = await this.insertUsers(seedUsers);
+    await this.insertNewProducts(users[1], seedProducts);
 
     return {
       message: hard ? 'HARD SEED EXECUTED' : 'SEED EXECUTED',
-      products,
     };
   }
 
@@ -54,9 +50,7 @@ export class SeedService {
       );
     });
 
-    const result = await this.userRepository.save(users);
-
-    return result[1];
+    return await this.userRepository.save(users);
   }
 
   private async deleteTables(

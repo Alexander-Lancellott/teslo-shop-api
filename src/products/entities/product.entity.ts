@@ -14,50 +14,60 @@ import { ProductImage } from './product-image.entity';
 import { ENTITIES_NAME } from '../../migrations/RenameEntities';
 import { User } from '../../auth/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { initialData } from '../../seed/data/seed-data';
 
 const cleanSlug = (slug: string) => {
   return slug.toLowerCase().replaceAll(' ', '_').replaceAll(/'|`/g, '');
 };
 
+export const gender = ['men', 'women', 'kid', 'unisex'];
+
 @Entity({ name: ENTITIES_NAME.Product.current })
 export class Product {
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: initialData.products[0].title, uniqueItems: true })
   @Column('text', { unique: true })
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 99.99 })
   @Column('float', { default: 0 })
   price: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: initialData.products[0].description })
   @Column('text', { nullable: true })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: initialData.products[0].slug })
   @Column('text', { unique: true })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'interger', example: initialData.products[0].stock })
   @Column('int', { default: 0 })
   stock: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: initialData.products[0].sizes })
   @Column('text', { array: true })
   sizes: string[];
 
-  @ApiProperty()
+  @ApiProperty({
+    example: initialData.products[0].gender,
+    enum: gender,
+  })
   @Column('text')
   gender: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: initialData.products[0].tags })
   @Column('text', { array: true, default: [] })
   tags: string[];
 
-  @ApiProperty()
+  @ApiProperty({
+    isArray: true,
+    type: 'string',
+    example: initialData.products[0].images,
+  })
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {
     cascade: true,
     eager: true,
@@ -65,17 +75,14 @@ export class Product {
   @Transform(({ value }) => {
     return value.map((image: ProductImage) => image.url);
   })
-  images?: ProductImage[];
+  images?: ProductImage[] | string[];
 
-  @ApiProperty()
   @ManyToOne(() => User, (user) => user.products, { eager: true })
   user: User;
 
-  @ApiProperty()
   @CreateDateColumn()
   creatAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   updateAt: Date;
 
