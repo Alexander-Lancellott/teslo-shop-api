@@ -1,2 +1,4 @@
 # Git will always convert line endings to LF on checkout.
+* text=auto
 * text eol=lf
+*.png binary
