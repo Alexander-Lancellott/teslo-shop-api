@@ -13,6 +13,16 @@ export const updateDoc = (trigger: boolean, port: number) => {
       },
     );
 
+    get(
+      `http://localhost:${port}/doc/swagger-ui-bundle.js.map`,
+      function (response) {
+        response.pipe(createWriteStream('public/doc/swagger-ui-bundle.js.map'));
+        console.log(
+          `Swagger UI bundle file map written to: '/public/doc/swagger-ui-bundle.js.map'`,
+        );
+      },
+    );
+
     get(`http://localhost:${port}/doc/swagger-ui-init.js`, function (response) {
       response.pipe(createWriteStream('public/doc/swagger-ui-init.js'));
       console.log(
@@ -32,10 +42,29 @@ export const updateDoc = (trigger: boolean, port: number) => {
       },
     );
 
+    get(
+      `http://localhost:${port}/doc/swagger-ui-standalone-preset.js.map`,
+      function (response) {
+        response.pipe(
+          createWriteStream('public/doc/swagger-ui-standalone-preset.js.map'),
+        );
+        console.log(
+          `Swagger UI standalone preset file map written to: '/public/doc/swagger-ui-standalone-preset.js.map'`,
+        );
+      },
+    );
+
     get(`http://localhost:${port}/doc/swagger-ui.css`, function (response) {
       response.pipe(createWriteStream('public/doc/swagger-ui.css'));
       console.log(
         `Swagger UI css file written to: '/public/doc/swagger-ui.css'`,
+      );
+    });
+
+    get(`http://localhost:${port}/doc/swagger-ui.css.map`, function (response) {
+      response.pipe(createWriteStream('public/doc/swagger-ui.css.map'));
+      console.log(
+        `Swagger UI css file map written to: '/public/doc/swagger-ui.css.map'`,
       );
     });
   }
