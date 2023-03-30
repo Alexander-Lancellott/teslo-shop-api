@@ -8,6 +8,9 @@ import {
   ClassSerializerInterceptor,
   UseGuards,
   Headers,
+  Patch,
+  Param,
+  ParseUUIDPipe,
   //SetMetadata,
 } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
@@ -15,7 +18,7 @@ import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorators/get-user.decorator';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto, ChangeRolesAndStatusDto } from './dto';
 import { User } from './entities/user.entity';
 import { RawHeaders } from '../common/decorators/raw-headers.decorator';
 import { IncomingHttpHeaders } from 'http';
@@ -23,8 +26,10 @@ import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import {
   Auth,
   RoleProctected,
-  ApiAuthResponse,
+  ApiLoginResponse,
+  ApiRegisterResponse,
   ApiCheckStatusResponse,
+  ApiChangeRolesAndStatusResponse,
 } from './decorators';
 import { ValidRoles } from './interfaces';
 
@@ -35,13 +40,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiAuthResponse({})
+  @ApiRegisterResponse()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
   }
 
   @Get('login')
-  @ApiAuthResponse({ islogin: true })
+  @ApiLoginResponse()
   loginUser(@Query() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
@@ -51,6 +56,19 @@ export class AuthController {
   @ApiCheckStatusResponse()
   checkStatus(@GetUser() user: User) {
     return this.authService.checkStatus(user);
+  }
+
+  @Patch('change-roles-and-status/:userId')
+  @Auth(ValidRoles.admin)
+  @ApiChangeRolesAndStatusResponse()
+  changeRolesAndStatus(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() changeRolesAndStatusDto: ChangeRolesAndStatusDto,
+  ) {
+    return this.authService.changeRolesAndStatus(
+      userId,
+      changeRolesAndStatusDto,
+    );
   }
 
   //! The following endpoints are examples.

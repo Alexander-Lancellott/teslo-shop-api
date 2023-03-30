@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class SeedService {
-  private seedSecret: string;
+  private secret: string;
   constructor(
     private readonly productsService: ProductsService,
     private readonly configService: ConfigService,
@@ -19,11 +19,11 @@ export class SeedService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {
-    this.seedSecret = configService.getOrThrow('SEED_SECRET');
+    this.secret = configService.getOrThrow('SECRET');
   }
 
   async runSeed({ hard, secret }: SeedDto) {
-    if (secret !== this.seedSecret)
+    if (secret !== this.secret)
       throw new BadRequestException('First talk to the admin');
 
     const seedProducts = initialData.products;

@@ -10,6 +10,7 @@ import {
 
 import { Product } from '../../products/entities';
 import { initialData } from '../../seed/data/seed-data';
+import { ValidRoles } from '../interfaces';
 
 @Entity('users')
 export class User {
@@ -33,7 +34,7 @@ export class User {
   isActive: boolean;
 
   @ApiProperty({ example: initialData.users[1].roles })
-  @Column('text', { array: true, default: ['user'] })
+  @Column('text', { array: true, default: [ValidRoles.user] })
   roles: string[];
 
   @ApiHideProperty()

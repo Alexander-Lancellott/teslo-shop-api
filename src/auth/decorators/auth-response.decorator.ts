@@ -8,6 +8,7 @@ import {
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 
@@ -17,7 +18,7 @@ class LoginResponse extends OmitType(User, [
   'isActive',
 ] as const) {}
 
-const AuthGeneralResponse = ({ islogin = false }) => {
+const AuthResponse = ({ islogin = false }) => {
   return applyDecorators(
     ApiExtraModels(LoginResponse),
     ApiResponse({
@@ -42,17 +43,34 @@ const AuthGeneralResponse = ({ islogin = false }) => {
   );
 };
 
-export const ApiAuthResponse = ({ islogin = false }) => {
+export const ApiRegisterResponse = () => {
   return applyDecorators(
-    AuthGeneralResponse({ islogin }),
+    AuthResponse({}),
     ApiBadRequestResponse({ description: 'Bad Request' }),
+  );
+};
+
+export const ApiLoginResponse = () => {
+  return applyDecorators(
+    AuthResponse({ islogin: true }),
+    ApiBadRequestResponse({ description: 'Bad Request' }),
+    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
   );
 };
 
 export const ApiCheckStatusResponse = () => {
   return applyDecorators(
     ApiBearerAuth(),
-    AuthGeneralResponse({}),
+    AuthResponse({}),
+    ApiForbiddenResponse({ description: 'Forbidden. Token related.' }),
+    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+  );
+};
+
+export const ApiChangeRolesAndStatusResponse = () => {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOkResponse({ type: User }),
     ApiForbiddenResponse({ description: 'Forbidden. Token related.' }),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
   );

@@ -10,7 +10,7 @@ export const JoiValidationSchema = Joi.object({
   PORT: Joi.number().default(3000),
   HOST_API: Joi.string(),
   JWT_SECRET: Joi.string(),
-  SEED_SECRET: Joi.string(),
+  SECRET: Joi.string(),
   STAGE: Joi.string().valid('dev', 'prod'),
   SWAGGER_UPDATE: Joi.boolean().default('false'),
 });

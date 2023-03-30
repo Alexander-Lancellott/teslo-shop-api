@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { DataSource, Repository } from 'typeorm';
@@ -97,10 +101,12 @@ export class ProductsService {
     const { images, ...toUpdate } = updateProductDto;
     const product = await this.findOne(id, 'id');
 
+    if (product.user.id !== user.id)
+      throw new BadRequestException(`You can't perform this update.`);
+
     const updateProduct = this.productRepository.create({
       ...product,
       ...toUpdate,
-      user,
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -125,8 +131,11 @@ export class ProductsService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: User) {
     const product = await this.findOne(id, 'id');
+    if (product.user.id !== user.id && !user.roles.includes('admin'))
+      throw new BadRequestException(`You can't perform this delete.`);
+
     await this.productRepository.remove(product);
 
     return product;

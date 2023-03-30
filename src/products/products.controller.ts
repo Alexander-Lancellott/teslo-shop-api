@@ -65,7 +65,7 @@ export class ProductsController {
   @Delete(':id')
   @Auth()
   @ApiDeleteUpdateResponse('deleted')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.productsService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
+    return this.productsService.remove(id, user);
   }
 }

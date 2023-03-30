@@ -8,7 +8,7 @@ export class SeedDto {
   hard?: boolean;
 
   @IsString()
-  @IsNotEmpty({})
+  @IsNotEmpty()
   @Transform(({ value }) => value?.trim())
   secret: string;
 }
