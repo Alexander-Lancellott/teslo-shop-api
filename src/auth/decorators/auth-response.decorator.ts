@@ -9,6 +9,7 @@ import {
   ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiOkResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 
@@ -70,6 +71,7 @@ export const ApiCheckStatusResponse = () => {
 export const ApiChangeRolesAndStatusResponse = () => {
   return applyDecorators(
     ApiBearerAuth(),
+    ApiParam({ name: 'userId', format: 'uuid' }),
     ApiOkResponse({ type: User }),
     ApiForbiddenResponse({ description: 'Forbidden. Token related.' }),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
