@@ -15,16 +15,10 @@ jobs:
       - name: Deploy to Vercel Action
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          github-token: ${{ secrets.GH_PAT }} #Optional
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}} #Required
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
-      - name: Change alias to Vercel Action
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          github-token: ${{ secrets.GH_PAT }} #Optional
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}} #Required
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
           alias-domains: |
+            teslo-shop-api-alexander-lancellott.vercel.app
             {{BRANCH}}-tsa.alexander-lancellott.vercel.app
