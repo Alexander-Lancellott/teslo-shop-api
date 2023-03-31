@@ -38,5 +38,19 @@ export const updateDoc = (trigger: boolean, port: number) => {
         `Swagger UI css file written to: '/public/doc/swagger-ui.css'`,
       );
     });
+
+    get(`http://localhost:${port}/doc/favicon-16x16.png`, function (response) {
+      response.pipe(createWriteStream('public/doc/favicon-16x16.png'));
+      console.log(
+        `Favicon-16x16.png written to: '/public/doc/favicon-16x16.png'`,
+      );
+    });
+
+    get(`http://localhost:${port}/doc/favicon-32x32.png`, function (response) {
+      response.pipe(createWriteStream('public/doc/favicon-32x32.png'));
+      console.log(
+        `Favicon-32x32.png written to: '/public/doc/favicon-32x32.png'`,
+      );
+    });
   }
 };
