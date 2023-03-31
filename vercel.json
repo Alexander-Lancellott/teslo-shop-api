@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "github": {
+    "enabled": false
+  },
   "builds": [
     {
       "src": "dist/main.js",
@@ -8,7 +11,7 @@
   ],
   "routes": [
     {
-      "src": "/dist",
+      "src": "/(.*)",
       "dest": "dist/main.js",
       "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"]
     }
