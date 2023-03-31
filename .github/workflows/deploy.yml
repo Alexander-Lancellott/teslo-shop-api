@@ -2,15 +2,16 @@ name: Deploy CI
 on:
   push:
     branches: [test1]
-  pull_request:
-    types: [opened, synchronize, reopened]
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Yarn
+        run: yarn install
+      - name: Build
+        run: yarn build
       - name: Deploy to Vercel Action
         uses: BetaHuhn/deploy-to-vercel-action@v1
         with:
