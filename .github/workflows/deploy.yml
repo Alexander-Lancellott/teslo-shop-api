@@ -19,5 +19,3 @@ jobs:
           github-token: ${{ secrets.GH_PAT }} #Optional
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID}} #Required
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
-          alias-domains: |
-            {{BRANCH}}.teslo-shop-api-avl.vercel.app
