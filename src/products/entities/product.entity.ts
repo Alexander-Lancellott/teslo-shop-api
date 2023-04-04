@@ -66,7 +66,7 @@ export class Product {
   @ApiProperty({
     isArray: true,
     type: 'string',
-    example: initialData.products[0].images,
+    default: [],
   })
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {
     cascade: true,
@@ -75,7 +75,7 @@ export class Product {
   @Transform(({ value }) => {
     return value.map((image: ProductImage) => image.url);
   })
-  images?: ProductImage[] | string[];
+  images?: ProductImage[];
 
   @ManyToOne(() => User, (user) => user.products, { eager: true })
   user: User;

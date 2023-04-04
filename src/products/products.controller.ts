@@ -59,7 +59,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
     @GetUser() user: User,
   ) {
-    return this.productsService.update(id, updateProductDto, user);
+    return this.productsService.update({ id, user, updateProductDto });
   }
 
   @Delete(':id')

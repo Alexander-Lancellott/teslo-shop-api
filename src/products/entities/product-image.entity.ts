@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  RelationId,
+} from 'typeorm';
 import { Product } from './product.entity';
 import { ENTITIES_NAME } from '../../migrations/RenameEntities';
 
@@ -13,5 +19,6 @@ export class ProductImage {
   @ManyToOne(() => Product, (product) => product.images, {
     onDelete: 'CASCADE',
   })
-  product: Product;
+  @RelationId('product')
+  product: Product | string;
 }

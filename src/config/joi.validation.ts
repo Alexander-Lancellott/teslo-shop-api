@@ -13,4 +13,8 @@ export const JoiValidationSchema = Joi.object({
   SECRET: Joi.string(),
   STAGE: Joi.string().valid('dev', 'prod'),
   SWAGGER_UPDATE: Joi.boolean().default('false'),
+  CLOUDINARY_CLOUD_NAME: Joi.string(),
+  CLOUDINARY_API_KEY: Joi.string(),
+  CLOUDINARY_API_SECRET: Joi.string(),
+  CLOUDINARY_SEED_FOLDER: Joi.string(),
 });
