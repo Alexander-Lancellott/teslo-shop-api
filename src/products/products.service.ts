@@ -14,26 +14,41 @@ import { SeedProduct } from '../seed/data/seed-data';
 import { ENTITIES_NAME } from '../migrations/RenameEntities';
 import { Helper } from '../common/helper/helper';
 import { User } from '../auth/entities/user.entity';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class ProductsService {
   private readonly helper = new Helper('ProductsService');
 
   private handlerProduct = (
-    images: string[],
-    restProduct?: CreateProductDto,
+    images?: string[],
+    createProductDto?: CreateProductDto,
     user?: User,
   ) => {
-    const imagesDto = images.map((image) =>
-      this.productImageRepository.create({ url: image }),
-    );
+    let productImages: ProductImage[] = [];
+    if (images) {
+      productImages = images.map((image) =>
+        this.productImageRepository.create({ url: image }),
+      );
+    }
 
     return {
-      ...restProduct,
-      images: imagesDto,
+      images: productImages,
+      ...createProductDto,
       user,
     };
   };
+
+  private formatImages(images: ProductImage[] = []) {
+    const newImages = [];
+    if (images.length > 0) images.forEach((image) => newImages.push(image.url));
+    return newImages;
+  }
+
+  private formatProductResult(product: Product) {
+    const images = this.formatImages(product.images);
+    return { ...product, images };
+  }
 
   constructor(
     @InjectRepository(Product)
@@ -42,18 +57,22 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
 
+    private readonly filesService: FilesService,
+
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createProductDto: CreateProductDto, user: User) {
+  async create(
+    createProductDto: CreateProductDto,
+    user: User,
+    images?: string[],
+  ) {
     try {
-      const { images, ...restProduct } = createProductDto;
-
       const product = this.productRepository.create({
-        ...this.handlerProduct(images, restProduct, user),
+        ...this.handlerProduct(images, createProductDto, user),
       });
       await this.productRepository.save(product);
-      return { ...product, images };
+      return this.formatProductResult(product);
     } catch (error) {
       this.helper.handleDBExceptions(error);
     }
@@ -97,16 +116,28 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
-    const { images, ...toUpdate } = updateProductDto;
+  async update({
+    id,
+    user,
+    updateProductDto,
+    uploadAll,
+    deleteImages,
+  }: {
+    id: string;
+    user: User;
+    updateProductDto?: UpdateProductDto;
+    uploadAll?: () => Promise<string[]>;
+    deleteImages?: (secure_urls: string[]) => Promise<void>;
+  }) {
     const product = await this.findOne(id, 'id');
+    let images: string[];
 
     if (product.user.id !== user.id)
       throw new BadRequestException(`You can't perform this update.`);
 
     const updateProduct = this.productRepository.create({
       ...product,
-      ...toUpdate,
+      ...updateProductDto,
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -114,8 +145,12 @@ export class ProductsService {
     await queryRunner.startTransaction();
 
     try {
+      if (uploadAll) images = await uploadAll();
+
       if (images) {
+        const productImages = this.formatImages(product.images);
         await queryRunner.manager.delete(ProductImage, { product: id });
+        await deleteImages(productImages);
 
         updateProduct.images = this.handlerProduct(images).images;
       }
@@ -123,10 +158,11 @@ export class ProductsService {
       const result = await queryRunner.manager.save(updateProduct);
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return result;
+      return this.formatProductResult(result);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
+      if (images) await deleteImages(images);
       this.helper.handleDBExceptions(error);
     }
   }
@@ -137,6 +173,7 @@ export class ProductsService {
       throw new BadRequestException(`You can't perform this delete.`);
 
     await this.productRepository.remove(product);
+    await this.filesService.deleteImages(this.formatImages(product.images));
 
     return product;
   }
@@ -174,6 +211,7 @@ export class ProductsService {
         await queryRunner.manager.query(
           `ALTER SEQUENCE ${ENTITIES_NAME.ProductImage.current}_id_seq RESTART 1`,
         );
+        await this.filesService.deleteAll();
       }
       await queryRunner.commitTransaction();
       return await queryRunner.release();

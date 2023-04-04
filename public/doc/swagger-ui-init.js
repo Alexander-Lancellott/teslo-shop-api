@@ -472,6 +472,75 @@ window.onload = function() {
           ]
         }
       },
+      "/api/files/product/{id}": {
+        "patch": {
+          "operationId": "FilesController_uploadProductImage",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileUploadDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Images was upload",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Product"
+                      },
+                      {
+                        "properties": {
+                          "images": {
+                            "example": [
+                              "https://res.cloudinary.com/dms5y8rug/image/upload/v1680505190/ProductsSeed/1740176-00-A_0_2000.jpg",
+                              "https://res.cloudinary.com/dms5y8rug/image/upload/v1680505190/ProductsSeed/1740176-00-A_1.jpg"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden. Token related."
+            }
+          },
+          "tags": [
+            "Files"
+          ],
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
       "/api/seed": {
         "get": {
           "operationId": "SeedController_executedSeed",
@@ -518,79 +587,6 @@ window.onload = function() {
           },
           "tags": [
             "Seed"
-          ]
-        }
-      },
-      "/api/files/product/{image}": {
-        "get": {
-          "operationId": "FilesController_getImage",
-          "parameters": [
-            {
-              "name": "image",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "image/*": {
-                  "schema": {
-                    "type": "file",
-                    "format": "binary"
-                  }
-                }
-              },
-              "description": ""
-            },
-            "404": {
-              "description": "Not found image"
-            }
-          },
-          "tags": [
-            "Files"
-          ]
-        }
-      },
-      "/api/files/product": {
-        "post": {
-          "operationId": "FilesController_uploadProductImage",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "multipart/form-data": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileUploadDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "properties": {
-                      "secureUrl": {
-                        "type": "string",
-                        "example": "http://localhost:3000/api/files/product/1740176-00-A_1.jpg"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad Request"
-            }
-          },
-          "tags": [
-            "Files"
           ]
         }
       }
@@ -665,16 +661,6 @@ window.onload = function() {
             "tags": {
               "example": [
                 "sweatshirt"
-              ],
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "images": {
-              "example": [
-                "1740176-00-A_0_2000.jpg",
-                "1740176-00-A_1.jpg"
               ],
               "type": "array",
               "items": {
@@ -787,10 +773,7 @@ window.onload = function() {
               }
             },
             "images": {
-              "example": [
-                "1740176-00-A_0_2000.jpg",
-                "1740176-00-A_1.jpg"
-              ],
+              "default": [],
               "type": "array",
               "items": {
                 "type": "string"
@@ -881,16 +864,6 @@ window.onload = function() {
               "items": {
                 "type": "string"
               }
-            },
-            "images": {
-              "example": [
-                "1740176-00-A_0_2000.jpg",
-                "1740176-00-A_1.jpg"
-              ],
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         },
@@ -965,13 +938,16 @@ window.onload = function() {
         "FileUploadDto": {
           "type": "object",
           "properties": {
-            "file": {
-              "type": "file",
-              "format": "binary"
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "file",
+                "format": "binary"
+              }
             }
           },
           "required": [
-            "file"
+            "images"
           ]
         }
       }

@@ -2,6 +2,8 @@ name: Deploy CI
 on:
   push:
     branches: [master]
+  pull_request_target:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,8 +14,22 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Deploy to Vercel Action
+      - name: Deploy Staging to Vercel Action
         uses: amondnet/vercel-action@v25
+        id: now-deployment-staging
+        if: github.event_name == 'pull_request_target'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
+          working-directory: example/static
+          alias-domains: |
+            pr-{{PR_NUMBER}}-tsa.alexander-lancellott.vercel.app
+      - name: Deploy Production to Vercel Action
+        uses: amondnet/vercel-action@v25
+        id: now-deployment-production
+        if: github.event_name == 'push'
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GH_PAT }} #Optional

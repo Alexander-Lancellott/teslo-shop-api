@@ -1,32 +1,57 @@
-import { join } from 'path';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { existsSync } from 'fs';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { cloudinaryFolder } from './helpers/imageOptions';
+import { User } from '../auth/entities/user.entity';
+import { ProductsService } from '../products/products.service';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
-export class FilesService {
-  private host: string;
-  private stage: string;
+export class FilesService implements OnModuleInit {
+  private productsService: ProductsService;
+  constructor(
+    private readonly cloudinaryService: CloudinaryService,
+    private moduleRef: ModuleRef,
+  ) {}
 
-  constructor(private readonly configService: ConfigService) {
-    this.host = configService.getOrThrow('HOST_API');
-    this.stage = configService.getOrThrow('STAGE');
+  async onModuleInit() {
+    this.productsService = await this.moduleRef.create(ProductsService);
   }
 
-  uploadFile(file: Express.Multer.File) {
-    const secureUrl = `${this.host}/files/product/${file.filename}`;
-    return { secureUrl };
+  async uploadImages(images: Express.Multer.File[], id: string, user: User) {
+    const secure_urls: string[] = [];
+    const uploadAll = async () => {
+      for (const image of images) {
+        const { secure_url } = await this.cloudinaryService.upload(image);
+        secure_urls.push(secure_url);
+      }
+      return secure_urls;
+    };
+
+    const deleteImages = async (urls: string[]) => {
+      await this.deleteImages(urls);
+    };
+
+    return await this.productsService.update({
+      id,
+      user,
+      uploadAll: uploadAll,
+      deleteImages: deleteImages,
+      updateProductDto: {},
+    });
   }
 
-  getStaticProductImage(image: string) {
-    const path =
-      this.stage === 'prod'
-        ? `/tmp/${image}`
-        : join(process.cwd(), '/static/products', image);
-    console.log(path);
-    if (!existsSync(path))
-      throw new NotFoundException(`No product found with image '${image}'`);
+  async deleteImages(secure_urls: string[]) {
+    if (secure_urls && secure_urls.length > 0) {
+      for (const url of secure_urls) {
+        const public_id = `${cloudinaryFolder}/${url.split('/').pop()}`.split(
+          '.',
+        )[0];
+        await this.cloudinaryService.delete(public_id);
+      }
+    }
+  }
 
-    return path;
+  async deleteAll() {
+    await this.cloudinaryService.deleteAll();
   }
 }

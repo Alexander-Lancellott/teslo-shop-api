@@ -47,11 +47,6 @@ class CreateProduct {
   @IsString({ each: true })
   @IsArray()
   tags?: string[];
-
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  images?: string[];
 }
 
 export class CreateProductDto extends IntersectionType(
@@ -60,6 +55,7 @@ export class CreateProductDto extends IntersectionType(
     'user',
     'creatAt',
     'updateAt',
+    'images',
     'checkSlugInsert',
   ] as const),
   CreateProduct,

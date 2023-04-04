@@ -40,6 +40,8 @@
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cloudinary": "^1.35.0",
+    "datauri": "^4.1.0",
     "joi": "^17.8.3",
     "lodash": "^4.17.21",
     "passport": "^0.6.0",

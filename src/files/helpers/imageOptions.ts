@@ -1,24 +1,22 @@
 import { BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { MulterModuleOptions } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { v4 as uuid } from 'uuid';
 
-const configService = new ConfigService();
+const fileType = 'jpg|jpeg|png|gif';
 
-const stage = configService.get<string>('STAGE');
+export const cloudinaryFolder = 'Products';
 
-const fileType = '(jpg|jpeg|png|gif)';
-
-const fileNamer = (
-  req: Express.Request,
-  file: Express.Multer.File,
-  callback: (error: Error, fileName: string) => void,
-) => {
+export const cloudinaryOptions = (file?: Express.Multer.File) => {
   const fileExtension = file.mimetype.split('/')[1];
   const fileName = `${uuid()}.${fileExtension}`;
-
-  return callback(null, fileName);
+  return {
+    folder: cloudinaryFolder,
+    transformation: { quality: 'auto' },
+    allowed_formats: fileType.split('|'),
+    use_filename: true,
+    unique_filename: false,
+    filename_override: fileName,
+  };
 };
 
 const imageFilter = (
@@ -38,8 +36,4 @@ const imageFilter = (
 
 export const imageOptions: MulterModuleOptions = {
   fileFilter: imageFilter,
-  storage: diskStorage({
-    destination: stage === 'prod' ? '/tmp/' : './static/products',
-    filename: fileNamer,
-  }),
 };

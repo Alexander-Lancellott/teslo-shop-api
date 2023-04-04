@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class SeedService {
   private secret: string;
+  private cloudinarySeedFolder: string;
   constructor(
     private readonly productsService: ProductsService,
     private readonly configService: ConfigService,
@@ -20,6 +21,9 @@ export class SeedService {
     private readonly userRepository: Repository<User>,
   ) {
     this.secret = configService.getOrThrow('SECRET');
+    this.cloudinarySeedFolder = configService.getOrThrow(
+      'CLOUDINARY_SEED_FOLDER',
+    );
   }
 
   async runSeed({ hard, secret }: SeedDto) {
@@ -73,8 +77,14 @@ export class SeedService {
   private async insertNewProducts(user: User, seedProducts: SeedProduct[]) {
     const insertPromises = [];
 
-    seedProducts.forEach((product) => {
-      insertPromises.push(this.productsService.create(product, user));
+    seedProducts.forEach(({ images, ...restProducts }) => {
+      const imagesUrl = [];
+      images.forEach((image) =>
+        imagesUrl.push(`${this.cloudinarySeedFolder}/${image}`),
+      );
+      insertPromises.push(
+        this.productsService.create(restProducts, user, imagesUrl),
+      );
     });
 
     return await Promise.all(insertPromises);
