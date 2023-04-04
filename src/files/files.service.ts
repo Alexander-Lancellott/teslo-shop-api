@@ -4,14 +4,22 @@ import { cloudinaryFolder } from './helpers/imageOptions';
 import { User } from '../auth/entities/user.entity';
 import { ProductsService } from '../products/products.service';
 import { ModuleRef } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FilesService implements OnModuleInit {
   private productsService: ProductsService;
+  private cloudinarySeedFolder: string;
+
   constructor(
+    private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
     private moduleRef: ModuleRef,
-  ) {}
+  ) {
+    this.cloudinarySeedFolder = configService.getOrThrow(
+      'CLOUDINARY_SEED_FOLDER',
+    );
+  }
 
   async onModuleInit() {
     this.productsService = await this.moduleRef.create(ProductsService);
@@ -41,7 +49,11 @@ export class FilesService implements OnModuleInit {
   }
 
   async deleteImages(secure_urls: string[]) {
-    if (secure_urls && secure_urls.length > 0) {
+    const urlArray = secure_urls[0].split('/');
+    const seedValidation =
+      urlArray[urlArray.length - 2] !==
+      this.cloudinarySeedFolder.split('/').pop();
+    if (secure_urls && secure_urls.length > 0 && seedValidation) {
       for (const url of secure_urls) {
         const public_id = `${cloudinaryFolder}/${url.split('/').pop()}`.split(
           '.',

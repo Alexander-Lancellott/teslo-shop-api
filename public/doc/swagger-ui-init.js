@@ -941,7 +941,7 @@ window.onload = function() {
             "images": {
               "type": "array",
               "items": {
-                "type": "file",
+                "type": "string",
                 "format": "binary"
               }
             }
