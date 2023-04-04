@@ -1,8 +1,9 @@
 name: Deploy CI
 on:
+  pull_request:
+    types: [synchronize, opened]
   push:
     branches: [master]
-  pull_request_target:
 
 jobs:
   deploy:
@@ -17,7 +18,7 @@ jobs:
       - name: Deploy Staging to Vercel Action
         uses: amondnet/vercel-action@v25
         id: now-deployment-staging
-        if: github.event_name == 'pull_request_target'
+        if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GH_PAT }} #Optional
