@@ -12,7 +12,6 @@ const parseAppUrl = async (app: INestApplication) => {
 };
 
 async function bootstrap() {
-  console.log(process.env.NODE_ENV);
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
   const logger = new Logger('Bootstrap');

@@ -38,6 +38,8 @@ import { MessagesWsModule } from './messages-ws/messages-ws.module';
           extra: {
             ssl: stage === 'prod' ? { rejectUnauthorized: false } : null,
           },
+          connectTimeoutMS: 20000,
+          retryDelay: 8000,
         };
       },
       inject: [ConfigService],
